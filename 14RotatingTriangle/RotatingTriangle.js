@@ -50,7 +50,7 @@ function main() {
   console.log('顶点位置设置成功');
 
   // 指定背景色
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0); 
 
   // 三角形当前旋转角度
   var currentAngle = 0.0;

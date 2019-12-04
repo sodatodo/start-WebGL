@@ -1,0 +1,29 @@
+{
+  "name": "start-webgl",
+  "version": "1.0.0",
+  "description": "WebGL基础知识",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync start --server --files **/*.html, **/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sodatodo/start-WebGL.git"
+  },
+  "keywords": [
+    "webgl"
+  ],
+  "author": "soda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sodatodo/start-WebGL/issues"
+  },
+  "homepage": "https://github.com/sodatodo/start-WebGL#readme",
+  "devDependencies": {
+    "browser-sync": "^2.26.7"
+  }
+}
