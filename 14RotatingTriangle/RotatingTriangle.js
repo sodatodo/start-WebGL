@@ -1,24 +1,11 @@
-// RotatedTriangle_Matrix.js
-// 顶点着色器
+// RotatedTranslatedTriangle.js
+// 顶点着色器程序
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
-  'uniform mat4 u_xformMatrix;\n' +
+  'uniform mat4 u_ModelMatrix;\n' +
   'void main() {\n' +
-  'gl_Position = u_xformMatrix * a_Position;\n' +
+  ' gl_Position = u_ModelMatrix * a_Position;\n' +
   '}\n';
-
-// var VSHADER_SOURCE =
-//   //x' = x cos b - y sin b
-//   //y' = x sin b + y cosb
-//   //z' = z
-//   'attribute vec4 a_Position;\n' +
-//   'uniform float u_CosB, u_SinB;\n' +
-//   'void main() {\n' +
-//   'gl_Position.x = a_Position.x * u_CosB - a_Position.y * u_SinB;\n' +
-//   'gl_Position.y = a_Position.x * u_SinB + a_Position.y * u_CosB;\n' +
-//   'gl_Position.z = a_Position.z;\n' +
-//   'gl_Position.w = 1.0;\n' +
-//   '}\n';
 
 // 片元着色器
 var FSHADER_SOURCE =
@@ -26,7 +13,8 @@ var FSHADER_SOURCE =
   'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' +
   '}';
 
-var ANGEL = 90.0;
+// 旋转速度(度/秒)
+var ANGLE_STEP = 45.0;
 
 function main() {
   // 获取canvas元素
@@ -60,45 +48,34 @@ function main() {
     return;
   }
   console.log('顶点位置设置成功');
-  // var radian = Math.PI * ANGEL / 180.0; // 转为弧度制
-  // var cosB = Math.cos(radian);
-  // var sinB = Math.sin(radian);
 
-  // WebGL中矩阵是列主序的 旋转矩阵
-  // var xformMatrix = new Float32Array([
-  //   cosB, sinB, 0.0, 0.0,
-  //   -sinB, cosB, 0.0, 0.0,
-  //   0.0, 0.0, 1.0, 0.0,
-  //   0.0, 0.0, 0.0, 1.0
-  // ])
-  var xformMatrix = new Matrix4();
-  xformMatrix.setRotate(ANGEL, 0, 0, 1)
-  // 将矩阵传给顶点着色器
-  var u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
-
-  gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix.elements);
-  // 设置 清空颜色
+  // 指定背景色
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-  // 清空canvas
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // 三角形当前旋转角度
+  var currentAngle = 0.0;
 
-  // 绘制三个点
-  // gl.drawArrays(gl.LINES, 0, n); // 忽略最后一个点绘制一个线段
-  // gl.drawArrays(gl.LINE_STRIP, 0, n); // 绘制两条线条
-  // gl.drawArrays(gl.LINE_LOOP, 0, n); // 三条线连成一个三角形
-  gl.drawArrays(gl.TRIANGLES, 0, n); // 绘制一个实心三角形
+  // 模型矩阵
+  var modelMatrix = new Matrix4();
 
+  var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+  // 开始绘制三角形
+  var tick = function () {
+    currentAngle = animate(currentAngle); // 更新旋转角
+    draw(gl, n, currentAngle, modelMatrix, u_ModelMatrix); // 绘制图像
+    requestAnimationFrame(tick);
+  }
+  tick();
 }
 
 /**
- * 返回待绘制顶点的个数 
- * 错误为负数
- * @param {*} gl 
- */
+* 返回待绘制顶点的个数 
+* 错误为负数
+* @param {*} gl 
+*/
 function initVertextBuffers(gl) {
   var vertices = new Float32Array([
-    0.0, 0.5, -0.5, -0.5, 0.5, -0.5
+    0.0, 0.3, -0.3, -0.3, 0.3, -0.3
   ]); // 能够保证数据类型都是浮点型 类型化数组无push和pop方法
   var n = 3; // 坐标点的个数
 
@@ -127,4 +104,29 @@ function initVertextBuffers(gl) {
   gl.enableVertexAttribArray(a_Position);
 
   return n;
+}
+
+function draw(gl, n, currentAngle, modelMatrix, u_ModelMatrix) {
+  // 设置旋转矩阵
+  modelMatrix.setRotate(currentAngle, 0, 0, 1);
+
+  // 将旋转矩阵传输给顶点着色器
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+  // 清除canvas
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // 绘制三角形
+  gl.drawArrays(gl.TRIANGLES, 0, n);
+}
+
+var g_last = Date.now();
+function animate(angle) {
+  // 计算距离上次调用经过了多长时间
+  var now = Date.now();
+  var elapsed = now - g_last; // 毫秒
+  g_last = now;
+  // 根据距离上次的调用时间更新旋转角度
+  var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
+  return newAngle %= 360;
 }
