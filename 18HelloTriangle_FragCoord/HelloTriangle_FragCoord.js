@@ -1,4 +1,4 @@
-// HelloTriangle.js
+// HelloTriangle_FragCoord.js
 // 顶点着色器
 var VSHADER_SOURCE = 
   'attribute vec4 a_Position;\n' +
@@ -8,8 +8,11 @@ var VSHADER_SOURCE =
 
 // 片元着色器
 var FSHADER_SOURCE =
+  'precision mediump float;\n' +
+  'uniform float u_Width;\n' +
+  'uniform float u_Height;\n' +
   'void main() {\n' +
-  'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' +
+  'gl_FragColor = vec4(gl_FragCoord.x/u_Width, 0.0, gl_FragCoord.y/u_Height, 1.0);\n' +
   '}';
 
 function main() {
@@ -89,6 +92,29 @@ function initVertextBuffers(gl) {
 
   // 将缓冲区对象分配给a_Position变量
   gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+  // 获取u_Width
+  var u_Width = gl.getUniformLocation(gl.program, 'u_Width');
+  if (!u_Width) {
+    console.log('Failed to get the storage location of u_Width');
+    return;
+  }
+
+  var u_Height = gl.getUniformLocation(gl.program, 'u_Height');
+  if (!u_Height) {
+    console.log('Failed to get the storage location of u_Height');
+    return;
+  }
+
+  // Pass the width and hight of the <canvas>
+  gl.uniform1f(u_Width, gl.drawingBufferWidth);
+  gl.uniform1f(u_Height, gl.drawingBufferHeight);
+
+  // Enable the generic vertex attribute array
+  gl.enableVertexAttribArray(a_Position);
+
+  // Unbind the buffer object
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
   // 连接a_Position变量与分配给它的缓冲区对象
   gl.enableVertexAttribArray(a_Position);
