@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "browser-sync start --server --files **/*.html, **/*.js"
+    "dev": "browser-sync start --server --files **/*.html, **/*.js",
+    "scan": "nodemon index.js",
+    "start": "concurrently \"npm run scan\" \"npm run dev\" "
   },
   "repository": {
     "type": "git",
@@ -25,5 +27,8 @@
   "homepage": "https://github.com/sodatodo/start-WebGL#readme",
   "devDependencies": {
     "browser-sync": "^2.26.7"
+  },
+  "dependencies": {
+    "concurrently": "^5.0.2"
   }
 }

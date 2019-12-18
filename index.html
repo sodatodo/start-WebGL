@@ -9,8 +9,29 @@
 <body>
     <div id="root"></div>
     <script>
-        const filename = location.href;
-        console.log('filename :', filename);
+
+        const rootPath = location.href;
+        console.log('rootPath', rootPath)
+        const requestURL = './directorys.json';
+        const request = new XMLHttpRequest();
+        request.open('GET', requestURL);
+        request.responseType = 'text';
+        request.send();
+
+        request.onload = function() {
+            let superHeroesText = request.response;
+            let files = JSON.parse(superHeroesText);
+            
+            Object.keys(files).forEach(key => {
+                const root = document.getElementById('root');
+                const div = document.createElement('div');
+                const a = document.createElement('a');
+                a.href = `${rootPath}${key}`
+                a.innerText = key;
+                div.appendChild(a);
+                root.appendChild(div)
+            })
+        }
     </script>
 </body>
 </html>
