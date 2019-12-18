@@ -101,7 +101,7 @@ function initVertexBuffers(gl) {
     if (!vertexColorBuffer || !indexBuffer) {
         return -1;
     }
-
+    //  点坐标设置
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
@@ -114,7 +114,7 @@ function initVertexBuffers(gl) {
     }
     gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
     gl.enableVertexAttribArray(a_Position);
-
+    // 颜色设置
     var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
     if (a_Color < 0) {
         console.log('Failed to get the storage location of a_Color');
@@ -122,7 +122,7 @@ function initVertexBuffers(gl) {
     }
     gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
     gl.enableVertexAttribArray(a_Color);
-
+    // 绑定索引和点坐标
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 

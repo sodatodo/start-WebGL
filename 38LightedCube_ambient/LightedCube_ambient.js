@@ -2,38 +2,21 @@
 // Vertex shader program
 var VSHADER_SOURCE =
 'attribute vec4 a_Position;\n' + 
-'attribute vec4 a_Color;\n' + 
-'attribute vec4 a_Normal;\n' +
+'attribute vec4 a_Color;\n' + // 表面基底颜色
+'attribute vec4 a_Normal;\n' + // 表面法向量
 'uniform mat4 u_MvpMatrix;\n' +
-'uniform vec3 u_LightColor;\n' +
-'uniform vec3 u_LightDirection;\n' +
+'uniform vec3 u_LightColor;\n' + // 光线颜色
+'uniform vec3 u_LightDirection;\n' + // 归一化的世界坐标
+'uniform vec3 u_AmbientLight;\n' + // 环境光颜色
 'varying vec4 v_Color;\n' +
 'void main() {\n' +
-'  gl_Position = u_MvpMatrix * a_Position ;\n' +
-'  vec3 normal = normalize(a_Normal.xyz);\n' +
-'  float nDotL = max(dot(u_LightDirection, normal), 0.0);\n' +
-'  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n' +
-'  v_Color = vec4(diffuse, a_Color.a);\n' +
-    '}\n';
-
-    // var VSHADER_SOURCE = 
-    // 'attribute vec4 a_Position;\n' + 
-    // 'attribute vec4 a_Color;\n' + 
-    // 'attribute vec4 a_Normal;\n' +        // Normal
-    // 'uniform mat4 u_MvpMatrix;\n' +
-    // 'uniform vec3 u_LightColor;\n' +     // Light color
-    // 'uniform vec3 u_LightDirection;\n' + // Light direction (in the world coordinate, normalized)
-    // 'varying vec4 v_Color;\n' +
-    // 'void main() {\n' +
-    // '  gl_Position = u_MvpMatrix * a_Position ;\n' +
-    // // Make the length of the normal 1.0
-    // '  vec3 normal = normalize(a_Normal.xyz);\n' +
-    // // Dot product of the light direction and the orientation of a surface (the normal)
-    // '  float nDotL = max(dot(u_LightDirection, normal), 0.0);\n' +
-    // // Calculate the color due to diffuse reflection
-    // '  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n' +
-    // '  v_Color = vec4(diffuse, a_Color.a);\n' +
-    // '}\n';
+'  gl_Position = u_MvpMatrix * a_Position ;\n' + 
+'  vec3 normal = normalize(a_Normal.xyz);\n' + // 对基底法向量进行归一化
+'  float nDotL = max(dot(u_LightDirection, normal), 0.0);\n' + // 计算光线方向和法向量的点积 当点积小于0时意味着照射到了背面
+'  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n' + // 计算漫反射光的颜色
+'  vec3 ambient = u_AmbientLight * a_Color.rgb;\n' +
+'  v_Color = vec4(diffuse + ambient, a_Color.a);\n' +
+'}\n';
 
 // Fragment shader program
 var FSHADER_SOURCE =
@@ -64,6 +47,7 @@ function main() {
 
     // Set the vertex information
     var n = initVertexBuffers(gl);
+    console.log('n', n)
     if (n < 0) {
         console.log('Failed to set the vertex information');
         return;
@@ -76,20 +60,24 @@ function main() {
     var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
     var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
     var u_LightDirection = gl.getUniformLocation(gl.program, 'u_LightDirection');
+    var u_AmbientLight = gl.getUniformLocation(gl.program, 'u_AmbientLight');
     if (!u_MvpMatrix || !u_LightColor || !u_LightDirection) {
         console.log('Failed to get the storage location');
         return;
     }
+    gl.uniform3f(u_AmbientLight, 0.2, 0.2, 0.2); // 设置环境光
+    // gl.uniform3f(u_AmbientLight, 0.0, 0.0, 0.0); // 不设置环境光
 
-    gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
-    var lightDirection = new Vector3([0.5, 3.0, 4.0]);
-    lightDirection.normalize();
+    gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0); // 设置光线颜色 白色
+    var lightDirection = new Vector3([0.5, 3.0, 4.0]); // 设置光线方向 世界坐标系下
+    lightDirection.normalize(); // 归一化光线方向
     gl.uniform3fv(u_LightDirection, lightDirection.elements);
 
+    // 计算模型视图投影矩阵
     var mvpMatrix = new Matrix4();
     mvpMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
     mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
-
+    // 将模型视图投影矩阵传给u_MvpMatrix变量
     gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -127,7 +115,7 @@ function initVertexBuffers(gl) {
         1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0　    // v4-v7-v6-v5 back
     ]);
 
-    var normals = new Float32Array([    // Normal
+    var normals = new Float32Array([    // 法向量
         0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
         1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
         0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,  // v0-v5-v6-v1 up

@@ -41,22 +41,22 @@ function main() {
   
   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
   
-  var viewMatrix = new Matrix4();
-  var projMatrix = new Matrix4();
-  var modelMatrix = new Matrix4();
-  var mvpMatrix = new Matrix4();
+  var viewMatrix = new Matrix4(); // 视图矩阵
+  var projMatrix = new Matrix4(); // 投影矩阵
+  var modelMatrix = new Matrix4(); // 平移矩阵
+  var mvpMatrix = new Matrix4(); // 联合矩阵
   
   
-  modelMatrix.setTranslate(0.75, 0, 0);
-  viewMatrix.setLookAt(0, 0, 5, 0, 0, -100, 0, 1, 0);
-  projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
+  modelMatrix.setTranslate(0.75, 0, 0); 
+  viewMatrix.setLookAt(0, 0, 5, 0, 0, -100, 0, 1, 0); 
+  projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100); 
   
   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
   
   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
   
-  gl.enable(gl.DEPTH_TEST);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST); // 开启隐藏面消除功能
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // 同时清理颜色缓冲区和深度缓冲区
 
   gl.drawArrays(gl.TRIANGLES, 0, n);
 

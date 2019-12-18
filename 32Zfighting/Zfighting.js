@@ -57,10 +57,10 @@ function main() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.enable(gl.POLYGON_OFFSET_FILL);
+    gl.enable(gl.POLYGON_OFFSET_FILL); // 启用多边形偏移
 
     gl.drawArrays(gl.TRIANGLES, 0, n / 2);
-    gl.polygonOffset(1.0, 1.0);
+    gl.polygonOffset(1.0, 1.0); // 指定用来计算偏移量的参数 在z值上加上一个偏移量
     gl.drawArrays(gl.TRIANGLES, n/2, n/2);
 
 }

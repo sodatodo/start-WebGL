@@ -9,9 +9,9 @@
 <body>
     <div id="root"></div>
     <script>
-
+        // 当前浏览器访问页面的路径
         const rootPath = location.href;
-        console.log('rootPath', rootPath)
+
         const requestURL = './directorys.json';
         const request = new XMLHttpRequest();
         request.open('GET', requestURL);
